@@ -6,6 +6,8 @@ Clone the project
 
 create new python3 envirnment.
 
+create new db in Postgresql
+
 ### Run backent commands
 activate the environment
 ```
