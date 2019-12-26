@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { Menu, Container } from 'semantic-ui-react'
 import Routes from '../routes';
-import logo from '../logo.svg';
 import '../styles/App.css';
 
 class App extends Component {

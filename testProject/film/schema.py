@@ -25,7 +25,11 @@ class Query(ObjectType):
     """
     actor = graphene.Field(ActorType, id=graphene.Int()) # Get actor by id
     movie = graphene.Field(MovieType, id=graphene.Int()) # Get movie by id
-    actors = graphene.List(ActorType) # Get all actors list
+    actors = graphene.List(
+                ActorType,
+                start=graphene.Int(),
+                end=graphene.Int(),
+            ) # Get all actors list
     movies= graphene.List(MovieType) # Get all movies list
 
     def resolve_actor(self, info, **kwargs):
@@ -35,7 +39,7 @@ class Query(ObjectType):
         user = info.context.user
 
         if user.is_anonymous:
-            raise Exception('You must be logged to create Movie')
+            raise Exception('You must be logged to get Movie')
 
         id = kwargs.get('id')
 
@@ -51,7 +55,7 @@ class Query(ObjectType):
         user = info.context.user
 
         if user.is_anonymous:
-            raise Exception('You must be logged to create Movie')
+            raise Exception('You must be logged to get Movie')
 
         id = kwargs.get('id')
 
@@ -60,16 +64,27 @@ class Query(ObjectType):
 
         return None
 
-    def resolve_actors(self, info, **kwargs):
+    def resolve_actors(self, info, start=None, end=None, **kwargs):
         """
         To get all actors detail, but user need to be authenticated
         """
         user = info.context.user
 
         if user.is_anonymous:
-            raise Exception('You must be logged to create Movie')
+            raise Exception('You must be logged to get Actor')
 
-        return Actor.objects.all()
+        qs = Actor.objects.all()
+
+        if start:
+            if end:
+                qs = qs[start:end]
+            else:
+                qs = qs[start:]
+        else:
+            if end:
+                qs = qs[:end]
+
+        return qs
 
     def resolve_movies(self, info, **kwargs):
         """
@@ -78,7 +93,7 @@ class Query(ObjectType):
         user = info.context.user
 
         if user.is_anonymous:
-            raise Exception('You must be logged to create Movie')
+            raise Exception('You must be logged to get Actor')
 
         return Movie.objects.all()
 
@@ -118,7 +133,7 @@ class CreateActor(graphene.Mutation):
         user = info.context.user
 
         if user.is_anonymous:
-            raise Exception('You must be logged to create Movie')
+            raise Exception('You must be logged to create Actor')
 
         ok = True
         actor_instance = Actor(name=input.name)
@@ -145,7 +160,7 @@ class UpdateActor(graphene.Mutation):
         user = info.context.user
 
         if user.is_anonymous:
-            raise Exception('You must be logged to create Movie')
+            raise Exception('You must be logged to update Actor')
 
         ok = False
         actor_instance = Actor.objects.get(pk=id)
@@ -212,7 +227,7 @@ class UpdateMovie(graphene.Mutation):
         user = info.context.user
 
         if user.is_anonymous:
-            raise Exception('You must be logged to create Movie')
+            raise Exception('You must be logged to update Movie')
 
         ok = False
         movie_instance = Movie.objects.get(pk=id)

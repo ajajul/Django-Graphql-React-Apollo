@@ -50,7 +50,7 @@ class UserInput(graphene.InputObjectType):
     """
     email = graphene.String(required=True)
     password = graphene.String(required=True)
-    photo = Upload(required=True)
+    # photo = Upload(required=True)
     gender = graphene.String(required=True)
     country = graphene.String(required=True)
     state = graphene.String(required=True)
@@ -88,11 +88,20 @@ class CreateUser(graphene.Mutation):
         dob = graphene.types.datetime.Date(required=True)
 
     @staticmethod
-    def mutate(self, info, password, email):
+    def mutate(self, info, password, email, photo, gender, country, state, city, phone, developer, qa, bde, ba, hr, dob):
         user = get_user_model()(
-            # first_name=first_name,
-            # last_name=last_name,
-            email=email,
+            email = email,
+            gender = gender,
+            country = country,
+            state = state, 
+            city = city,
+            phone = phone,
+            developer = developer,
+            qa = qa,
+            bde = bde,
+            ba = ba,
+            hr = hr,
+            dob = dob
         )
 
         ok = True

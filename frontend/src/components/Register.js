@@ -6,11 +6,10 @@ import {
   Grid,
   Form,
   Radio,
-  Input,
   Dropdown,
-  Checkbox
+  Checkbox,
+  Loader, 
 } from 'semantic-ui-react';
-import { InputFile } from 'semantic-ui-react-input-file';
 import {
   DateInput,
 } from 'semantic-ui-calendar-react';
@@ -20,9 +19,9 @@ import { gql } from 'apollo-boost';
 import { Mutation } from 'react-apollo';
 import 'react-phone-input-2/lib/style.css';
 
+// $photo: Upload!, 
 
-
-const LOGIN_MUTATION = gql`
+const REGISTER_MUTATION = gql`
   mutation createUser(
   	$email: String!, 
   	$password: String!, 
@@ -41,8 +40,8 @@ const LOGIN_MUTATION = gql`
   ) {
     createUser(
     	email: $email, 
-    	password: $password,
-    	photo: $photo,
+    	password: $password, 
+    	photo:$photo, 
     	gender: $gender,
     	country: $country,
     	state: $state,
@@ -70,13 +69,11 @@ class Register extends Component {
 	constructor(props){
 	    super(props);
 	    this.state = {
-	      form_submitted:false,
-	      form_error:true,
+	      loading:false,
 
 	      countryList:[],
 	      stateList:[],
 	      cityList:[],
-
 
 	      email: '',
 	      password:'',
@@ -94,11 +91,6 @@ class Register extends Component {
 	      dob:'',
 
 	      coustryCode:'',
-
-
-
-
-	      server_error:false,
 	    };
 
 	    this.pictureFileRef = React.createRef();
@@ -131,19 +123,13 @@ class Register extends Component {
 	}
 
 	handleChange = (e,{name,value,fieldtype}) => {
-		console.log(name, value)
 	    let state = this.state;
 	    state[name] = value;
 	    this.setState(state);
 	}
 
-	handleUpload = (e) =>{
-		let {target: { files }} = e;
-		const file = files[0];
-		this.setState({picture:files});
-	}
-
 	selectCountry = (e,{value}) =>{
+		this.setState({loading:true});
 		let country = this.state.countryList.find(item=>item.id===value)
 
 		let stateList = []
@@ -157,12 +143,13 @@ class Register extends Component {
 	      			text: item.name
 	      		}
 	      	});
-	      	this.setState({stateList:stateList, coustryCode:country.iso2.toLowerCase(), country:country.text, state:'', city:'', cityList:[]});
+	      	this.setState({stateList:stateList, loading:false, coustryCode:country.iso2.toLowerCase(), country:country.text, state:'', city:'', cityList:[]});
 	      });
 		
 	}
 
 	selectState = (e,{value})=>{
+		this.setState({loading:true})
 		let state = this.state.stateList.find(item=>item.id===value)
 
 		let cityList = []
@@ -176,7 +163,7 @@ class Register extends Component {
 	      			text: item.name
 	      		}
 	      	});
-	      	this.setState({cityList:cityList, state:state.text});
+	      	this.setState({cityList:cityList, loading:false, state:state.text});
 	      });
 	}
 
@@ -185,16 +172,14 @@ class Register extends Component {
 	    const {email,password, gender, countryList, stateList, cityList, coustryCode}=this.state;
 
 	    return(
-		    <Mutation mutation={LOGIN_MUTATION}>
+		    <Mutation mutation={REGISTER_MUTATION}>
 		    {(createUser, { data, loading, error }) => (
 		      <Form size='large' onSubmit={() => {
-		      	const file = this.state.picture ? this.state.picture[0] : null;
-		      	console.log("IIIIIIIIIIIIIIIIIIIIsssssssssssssssssssIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII", file);
                     createUser({
                       variables: {
                         email: this.state.email, 
 				    	password: this.state.password,
-				    	photo: this.pictureFileRef.current.files[0],
+				    	photo: this.state.picture,
 				    	gender: this.state.gender,
 				    	country: this.state.country,
 				    	state: this.state.state,
@@ -208,7 +193,7 @@ class Register extends Component {
 				    	dob: this.state.dob
                       }
                     })
-                      .then(res => {console.log(res);window.location = '/';})
+                      .then(res => {this.props.history.push('/')})
                       .catch(err => <span>{err}</span>);
                     this.setState({ email: '', password: '' });
                   }}
@@ -247,7 +232,7 @@ class Register extends Component {
 				            onChange={(e) => {
 				            	let {target: { files }} = e;
                                 const file = files[0];
-                                this.handleChange(e,{name:'picture', value:files, fieldtype:''})
+                                file && this.handleChange(e,{name:'picture', value:file, fieldtype:''})
                             }}
 			        	/>
 			        </Form.Group>
@@ -304,7 +289,7 @@ class Register extends Component {
 						    search
 						    selection
 						    options={cityList}
-						    onChange={(e,{value})=>{this.setState({city:cityList.find(item=>item.id==value).text})}}
+						    onChange={(e,{value})=>{this.setState({city:cityList.find(item=>item.id===value).text})}}
 			        	/>
 			        </Form.Group>
 			        <Form.Group>
@@ -350,7 +335,7 @@ class Register extends Component {
 			        <Form.Group>
 			        	<DateInput
 				          name="dob"
-				          dateFormat="YYYY/MM/DD"
+				          dateFormat="YYYY-MM-DD"
 				          placeholder="Date"
 				          value={this.state.dob}
 				          iconPosition="left"
@@ -372,14 +357,15 @@ class Register extends Component {
 
 
 	render() {
+		
 
-    	console.log(this.state)
     	return(
 	      <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
 	        <Grid.Column mobile={16} tablet={8} computer={8}>
 	          <Container textAlign='center' className={'main-container signup-container'}>
 	            <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
 	              <Grid.Column>
+	              	{this.state.loading && <Loader active inline='centered' />}
 	                { this.renderForm() }
 	              </Grid.Column>
 	            </Grid>

@@ -56,7 +56,7 @@ class Login extends Component {
                         password: this.state.password
                       }
                     })
-                      .then(res => {console.log(res);localStorage.setItem('token', res.data.tokenAuth.token);window.location = '/home';})
+                      .then(res => {localStorage.setItem('token', res.data.tokenAuth.token);window.location = '/home';})
                       .catch(err => <span>{err}</span>);
                     this.setState({ email: '', password: '' });
                   }}
@@ -94,7 +94,6 @@ class Login extends Component {
   	}
 
 	render() {
-		console.log(this.state)
     	return(
 	      <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
 	        <Grid.Column mobile={16} tablet={8} computer={8}>

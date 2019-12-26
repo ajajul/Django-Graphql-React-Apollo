@@ -16,9 +16,17 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 
 import 'semantic-ui-css/semantic.min.css';
 
+const getToken = () => {
+  const token = localStorage.getItem('token');
+  return token ? `JWT ${token}` : ' ';
+};
+
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:7000/graphql/'
+  uri: 'http://localhost:7000/graphql/',
+  headers:{
+    authorization: getToken(),
+  },
 });
 
 const client = new ApolloClient({
