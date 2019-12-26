@@ -28,7 +28,7 @@ node versoin 12.13.1
 
 yarn version 1.17.3
 
-### Run backent commands
+### Run front-end commands
 ```
 cd frontend
 
