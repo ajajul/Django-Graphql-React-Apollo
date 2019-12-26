@@ -1,6 +1,7 @@
 import graphene
 import graphql_jwt
 from graphene_django import DjangoObjectType
+from graphene_file_upload.scalars import Upload
 from django.contrib.auth import get_user_model
 
 
@@ -47,10 +48,20 @@ class UserInput(graphene.InputObjectType):
     """
     Define fields for User Register
     """
-    first_name = graphene.String(required=True)
-    last_name = graphene.String(required=True)
-    password = graphene.String(required=True)
     email = graphene.String(required=True)
+    password = graphene.String(required=True)
+    photo = Upload(required=True)
+    gender = graphene.String(required=True)
+    country = graphene.String(required=True)
+    state = graphene.String(required=True)
+    city = graphene.String(required=True)
+    phone = graphene.String(required=True)
+    developer = graphene.Boolean(required=True)
+    qa = graphene.Boolean(required=True)
+    bde = graphene.Boolean(required=True)
+    ba = graphene.Boolean(required=True)
+    hr = graphene.Boolean(required=True)
+    dob = graphene.types.datetime.Date(required=True)
 
 
 class CreateUser(graphene.Mutation):
@@ -61,13 +72,26 @@ class CreateUser(graphene.Mutation):
     user = graphene.Field(UserType)
 
     class Arguments:
-        input = UserInput(required=True)
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
+        photo = Upload(required=True)
+        gender = graphene.String(required=True)
+        country = graphene.String(required=True)
+        state = graphene.String(required=True)
+        city = graphene.String(required=True)
+        phone = graphene.String(required=True)
+        developer = graphene.Boolean(required=True)
+        qa = graphene.Boolean(required=True)
+        bde = graphene.Boolean(required=True)
+        ba = graphene.Boolean(required=True)
+        hr = graphene.Boolean(required=True)
+        dob = graphene.types.datetime.Date(required=True)
 
     @staticmethod
-    def mutate(self, info, first_name, last_name, password, email):
+    def mutate(self, info, password, email):
         user = get_user_model()(
-            first_name=first_name,
-            last_name=last_name,
+            # first_name=first_name,
+            # last_name=last_name,
             email=email,
         )
 

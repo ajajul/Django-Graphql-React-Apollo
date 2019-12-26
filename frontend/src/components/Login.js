@@ -6,21 +6,17 @@ import {
   Grid,
   Form
 } from 'semantic-ui-react';
-import { ApolloClient } from 'apollo-client';
-import { createHttpLink } from 'apollo-link-http';
-import { InMemoryCache } from 'apollo-cache-inmemory';
 import { gql } from 'apollo-boost';
+import { Mutation } from 'react-apollo';
 
 
-const httpLink = createHttpLink({
-  uri: 'http://127.0.0.1:7000/graphql/'
-});
-
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache()
-});
-
+const LOGIN_MUTATION = gql`
+  mutation tokenAuth($email: String!, $password: String!) {
+    tokenAuth(email: $email, password: $password) {
+      token
+    }
+  }
+`;
 
 class Login extends Component {
 
@@ -35,62 +31,65 @@ class Login extends Component {
 	    };
 	}
 
+	componentDidMount(){
+		var highScore = localStorage.getItem('token') || 0;
+		if(highScore!==0){
+			this.props.history.push('/home');
+		}
+	}
+
 	handleChange = (e,{name,value,fieldtype}) => {
 	    let state = this.state;
 	    state[name] = value;
 	    this.setState(state);
 	}
 
-	loginUser=(event)=>{
-
-		client.query({
-		  query: gql`
-		    mutation{
-		      tokenAuth(email:"${this.state.email}", password:"${this.state.password}"){
-			    token
-			  }
-		    }
-		  `
-		}).then(response => console.log(response.data))
-	    // event.preventDefault();
-	    // this.setState({form_submitted:true});
-
-	    // const {email,password } = this.state;
-	    // this.props.loginUser({ email,password });
-  	}
-
 	renderForm(){
 	    const {email,password}=this.state;
-
 	    return(
-	      <Form size='large' onSubmit={this.loginUser} >
-	        <Segment raised>
-	          <Form.Input
-	            fluid
-	            icon='mail'
-	            iconPosition='left'
-	            placeholder='Email'
-	            name='email'
-	            value={email}
-	            fieldtype='email'
-	            onChange={this.handleChange}
-	          />
-	          <Form.Input
-	            fluid
-	            icon='lock'
-	            iconPosition='left'
-	            placeholder='Password'
-	            type='password'
-	            name='password'
-	            value={password}
-	            fieldtype='password'
-	            onChange={this.handleChange}
-	          />
+		    <Mutation mutation={LOGIN_MUTATION}>
+		    {(tokenAuth, { data, loading, error }) => (
+		      <Form size='large' onSubmit={() => {
+                    tokenAuth({
+                      variables: {
+                        email: this.state.email,
+                        password: this.state.password
+                      }
+                    })
+                      .then(res => {console.log(res);localStorage.setItem('token', res.data.tokenAuth.token);window.location = '/home';})
+                      .catch(err => <span>{err}</span>);
+                    this.setState({ email: '', password: '' });
+                  }}
+                >
+		        <Segment raised>
+		          <Form.Input
+		            fluid
+		            icon='mail'
+		            iconPosition='left'
+		            placeholder='Email'
+		            name='email'
+		            value={email}
+		            fieldtype='email'
+		            onChange={this.handleChange}
+		          />
+		          <Form.Input
+		            fluid
+		            icon='lock'
+		            iconPosition='left'
+		            placeholder='Password'
+		            type='password'
+		            name='password'
+		            value={password}
+		            fieldtype='password'
+		            onChange={this.handleChange}
+		          />
 
-	          <Button color='green' fluid size='large' loading={this.props.waitingRequest} disabled={this.props.waitingRequest}>SignIn</Button>
+		          <Button color='green' fluid size='large' loading={this.props.waitingRequest} disabled={this.props.waitingRequest}>SignIn</Button>
 
-	        </Segment>
-	      </Form>
+		        </Segment>
+		      </Form>
+		    )}
+		    </Mutation>
 	    )
   	}
 

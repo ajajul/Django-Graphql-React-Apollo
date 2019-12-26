@@ -18,7 +18,7 @@ import 'semantic-ui-css/semantic.min.css';
 
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:7000'
+  uri: 'http://localhost:7000/graphql/'
 });
 
 const client = new ApolloClient({

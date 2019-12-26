@@ -26,3 +26,5 @@ singledispatch==3.4.0.3
 six==1.13.0
 sqlparse==0.3.0
 urllib3==1.25.7
+django-phonenumber-field==2.0.1
+Pillow==5.0.0

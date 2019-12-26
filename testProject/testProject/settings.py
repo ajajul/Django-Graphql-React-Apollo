@@ -25,7 +25,7 @@ SECRET_KEY = '_-tqj*+adh516$ptt(03ugkgt+5*f%aile-3(wit7hu+t+6&ty'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,8 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    
+
     'graphene_django',
+    'phonenumber_field',
 
 
     'user',
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -77,6 +79,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'testProject.wsgi.application'
 
 REST_SESSION_LOGIN = False
+
+JWT_VERIFY_EXPIRATION = False
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

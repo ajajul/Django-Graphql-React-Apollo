@@ -1,13 +1,20 @@
+import uuid
+import os
+import pytz
 from django.contrib.auth.models import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
 from django.conf import settings
 
 
 
+def get_upload_path(instance, filename):
+    filename = f'{uuid.uuid4()}.{filename.split(".")[-1]}'
+    return os.path.join('photos', instance.type, filename)
 
 
 
@@ -48,9 +55,21 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other')
+    )
+
+
     email = models.EmailField(unique=True)
-    first_name = models.CharField(_('first name'), max_length=30, blank=True, null=True)
-    last_name = models.CharField(_('last name'), max_length=150, blank=True, null=True)
+    photo = models.ImageField(upload_to=get_upload_path, null=True, help_text='cover photo', blank=True)
+    gender = models.CharField(choices=GENDER_CHOICES, blank=True, null=True, max_length=6)
+    country = models.CharField(max_length=50, blank=True)
+    state = models.CharField(max_length=50, blank=True)
+    city = models.CharField(max_length=50, blank=True)
+    phone = models.CharField(max_length=15, blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
@@ -61,7 +80,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False,
         help_text=_('Designates whether this user should be treated as active. '),
     )
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+
+    developer = models.BooleanField(default=False, help_text=_('Developer Skill'))
+    qa = models.BooleanField(default=False, help_text=_('QA Skill'))
+    bde = models.BooleanField(default=False, help_text=_('BDE Skill'))
+    ba = models.BooleanField(default=False, help_text=_('BA Skill'))
+    hr = models.BooleanField(default=False, help_text=_('HR Skill'))
+    dob = models.DateField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     objects = UserManager()
